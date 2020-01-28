@@ -102,23 +102,45 @@ var congressionalGeoLayer = new L.GeoJSON(stateCongressionalDistricts, {
             var totalMems = count.x_district_total_members;
             var totalUnverifieds = count.xd_uv_count;
             var totalNonMems = count.xd_nm_total;
+            // interesting choice; why do you keep adding the users' choice to a list (totalSubscribers)
+            // instead of just saving their choice itself (totalSubs)
+            // do you want to track users' click history?
             totalSubscribers.push(totalSubs);
             totalMembers.push(totalMems);
             totalUnverified.push(totalUnverifieds);
             totalNonMembers.push(totalNonMems)
+            
+            // following this approach:
+            // https://github.com/Leaflet/Leaflet/issues/947#issuecomment-118051406
+            popup = event.target.getPopup()
+            popup.setContent("<hr> <h2>"
+            + "Congressional District "
+            + feature.properties.FID
+            + "</h2> <hr> <h2>" + "Total Subscribers :"
+            + totalSubscribers[totalSubscribers.length - 1]
+            + "</h2>");
+            popup.update();
+            // paranoid : make sure it's open (bindPopup() should do that)
+            popup.openOn(map);
           }
         })
         // map.fitBounds(event.target.getBounds())
       },
     });
-    layer.bindPopup(function () {
-      return "<hr> <h2>"
-        + "Congressional District "
-        + feature.properties.FID
-        + "</h2> <hr> <h2>" + "Total Subscribers :"
-        + totalSubscribers[totalSubscribers.length - 1]
-        + "</h2>"
-    })
+    // let's start with generic text:... see above code *after the d3 cd_ data is fetched*
+    // which will update the popup content with subscribers count...
+    layer.bindPopup("<hr> <h2>"
+    + "Congressional District "
+    + feature.properties.FID
+    + "</h2>");
+    // function () {
+    //   return "<hr> <h2>"
+    //     + "Congressional District "
+    //     + feature.properties.FID
+    //     + "</h2> <hr> <h2>" + "Total Subscribers :"
+    //     + totalSubscribers[totalSubscribers.length - 1]
+    //     + "</h2>"
+    // })
   }
 });
 
