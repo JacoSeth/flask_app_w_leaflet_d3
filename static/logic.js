@@ -35,6 +35,11 @@ var mapStyleTwo = {
   weight: 1.5
 };
 
+var totalSubscribers = [];
+var totalMembers = [];
+var totalUnverified = [];
+var totalNonMembers = [];
+
 // Geo layers 
 var countyGeoLayer = new L.GeoJSON(countyGeoData, {
   style: mapStyleTwo,
@@ -55,28 +60,50 @@ var countyGeoLayer = new L.GeoJSON(countyGeoData, {
         });
       },
       click: function (event) {
-        map.fitBounds(event.target.getBounds());
-      }
+        d3.json(`/${feature.properties.county}`, function (countData) {
+          for (var i = 0; i < countData.length; i++) {
+            // create a reference variable for each object
+            var count = countData[i];
+            var totalSubs = count.x_district_subscribers_count;
+            var totalMems = count.x_district_total_members;
+            var totalUnverifieds = count.xd_uv_count;
+            var totalNonMems = count.xd_nm_total;
+            totalSubscribers.push(totalSubs);
+            totalMembers.push(totalMems);
+            totalUnverified.push(totalUnverifieds);
+            totalNonMembers.push(totalNonMems)
+            
+            // following this approach:
+            // https://github.com/Leaflet/Leaflet/issues/947#issuecomment-118051406
+            popup = event.target.getPopup()
+            popup.setContent("<hr> <h2>"
+            + feature.properties.county
+            + " County"
+            + "</h2> <hr> <h4>" + "Total Subscribers: "
+            + totalSubscribers[totalSubscribers.length - 1]
+            + "</h4> <hr> <h4>" + "Total Members: "
+            + totalMembers[totalMembers.length - 1]
+            + "</h4> <hr> <h4>" + "Total NonMembers: "
+            + totalNonMembers[totalNonMembers.length - 1]
+            + "</h4>");
+            popup.update();
+            // paranoid : make sure it's open (bindPopup() should do that)
+            popup.openOn(map);
+          }
+        })
+        // map.fitBounds(event.target.getBounds())
+      },
     });
-    layer.bindPopup(function () {
-      return "<hr> <h2>" + feature.properties.county + " COUNTY" + "</h2> <hr> <h3>" + "Population: " + feature.properties.pop_2010 + "</h3>"
-    })
+    layer.bindPopup("<hr> <h2>"
+    + "State Senate District "
+    + feature.properties.FID
+    + "</h2>");
   }
 });
-
-
-var totalSubscribers = [];
-var totalMembers = [];
-var totalUnverified = [];
-var totalNonMembers = [];
 
 var congressionalGeoLayer = new L.GeoJSON(stateCongressionalDistricts, {
   style: mapStyleTwo,
   onEachFeature: function (feature, layer) {
-    // var totalSubscribers = [];
-    // var totalMembers = [];
-    // var totalUnverified = [];
-    // var totalNonMembers = []
     layer.on({
       mouseover: function (event) {
         layer = event.target;
@@ -95,16 +122,12 @@ var congressionalGeoLayer = new L.GeoJSON(stateCongressionalDistricts, {
       click: function (event) {
         d3.json(`/cd_${feature.properties.FID}`, function (countData) {
           for (var i = 0; i < countData.length; i++) {
-            console.log(countData);
             // create a reference variable for each object
             var count = countData[i];
             var totalSubs = count.x_district_subscribers_count;
             var totalMems = count.x_district_total_members;
             var totalUnverifieds = count.xd_uv_count;
             var totalNonMems = count.xd_nm_total;
-            // interesting choice; why do you keep adding the users' choice to a list (totalSubscribers)
-            // instead of just saving their choice itself (totalSubs)
-            // do you want to track users' click history?
             totalSubscribers.push(totalSubs);
             totalMembers.push(totalMems);
             totalUnverified.push(totalUnverifieds);
@@ -116,9 +139,13 @@ var congressionalGeoLayer = new L.GeoJSON(stateCongressionalDistricts, {
             popup.setContent("<hr> <h2>"
             + "Congressional District "
             + feature.properties.FID
-            + "</h2> <hr> <h2>" + "Total Subscribers :"
+            + "</h2> <hr> <h4>" + "Total Subscribers: "
             + totalSubscribers[totalSubscribers.length - 1]
-            + "</h2>");
+            + "</h4> <hr> <h4>" + "Total Members: "
+            + totalMembers[totalMembers.length - 1]
+            + "</h4> <hr> <h4>" + "Total NonMembers: "
+            + totalNonMembers[totalNonMembers.length - 1]
+            + "</h4>");
             popup.update();
             // paranoid : make sure it's open (bindPopup() should do that)
             popup.openOn(map);
@@ -127,20 +154,10 @@ var congressionalGeoLayer = new L.GeoJSON(stateCongressionalDistricts, {
         // map.fitBounds(event.target.getBounds())
       },
     });
-    // let's start with generic text:... see above code *after the d3 cd_ data is fetched*
-    // which will update the popup content with subscribers count...
     layer.bindPopup("<hr> <h2>"
     + "Congressional District "
     + feature.properties.FID
     + "</h2>");
-    // function () {
-    //   return "<hr> <h2>"
-    //     + "Congressional District "
-    //     + feature.properties.FID
-    //     + "</h2> <hr> <h2>" + "Total Subscribers :"
-    //     + totalSubscribers[totalSubscribers.length - 1]
-    //     + "</h2>"
-    // })
   }
 });
 
@@ -163,12 +180,44 @@ var stateHouseGeoLayer = new L.GeoJSON(stateHouseDistricts, {
         });
       },
       click: function (event) {
-        map.fitBounds(event.target.getBounds());
-      }
+        d3.json(`/hd_${feature.properties.FID}`, function (countData) {
+          for (var i = 0; i < countData.length; i++) {
+            // create a reference variable for each object
+            var count = countData[i];
+            var totalSubs = count.x_district_subscribers_count;
+            var totalMems = count.x_district_total_members;
+            var totalUnverifieds = count.xd_uv_count;
+            var totalNonMems = count.xd_nm_total;
+            totalSubscribers.push(totalSubs);
+            totalMembers.push(totalMems);
+            totalUnverified.push(totalUnverifieds);
+            totalNonMembers.push(totalNonMems)
+            
+            // following this approach:
+            // https://github.com/Leaflet/Leaflet/issues/947#issuecomment-118051406
+            popup = event.target.getPopup()
+            popup.setContent("<hr> <h2>"
+            + "State House District "
+            + feature.properties.FID
+            + "</h2> <hr> <h4>" + "Total Subscribers: "
+            + totalSubscribers[totalSubscribers.length - 1]
+            + "</h4> <hr> <h4>" + "Total Members: "
+            + totalMembers[totalMembers.length - 1]
+            + "</h4> <hr> <h4>" + "Total NonMembers: "
+            + totalNonMembers[totalNonMembers.length - 1]
+            + "</h4>");
+            popup.update();
+            // paranoid : make sure it's open (bindPopup() should do that)
+            popup.openOn(map);
+          }
+        })
+        // map.fitBounds(event.target.getBounds())
+      },
     });
-    layer.bindPopup(function () {
-      return "<hr> <h2>" + "State House District " + feature.properties.FID + "</h2> <hr>"
-    })
+    layer.bindPopup("<hr> <h2>"
+    + "State House District "
+    + feature.properties.FID
+    + "</h2>");
   }
 });
 
@@ -191,12 +240,44 @@ var stateSenateGeoLayer = new L.GeoJSON(stateSenateDistricts, {
         });
       },
       click: function (event) {
-        map.fitBounds(event.target.getBounds());
-      }
+        d3.json(`/sd_${feature.properties.FID}`, function (countData) {
+          for (var i = 0; i < countData.length; i++) {
+            // create a reference variable for each object
+            var count = countData[i];
+            var totalSubs = count.x_district_subscribers_count;
+            var totalMems = count.x_district_total_members;
+            var totalUnverifieds = count.xd_uv_count;
+            var totalNonMems = count.xd_nm_total;
+            totalSubscribers.push(totalSubs);
+            totalMembers.push(totalMems);
+            totalUnverified.push(totalUnverifieds);
+            totalNonMembers.push(totalNonMems)
+            
+            // following this approach:
+            // https://github.com/Leaflet/Leaflet/issues/947#issuecomment-118051406
+            popup = event.target.getPopup()
+            popup.setContent("<hr> <h2>"
+            + "State Senate District "
+            + feature.properties.FID
+            + "</h2> <hr> <h4>" + "Total Subscribers: "
+            + totalSubscribers[totalSubscribers.length - 1]
+            + "</h4> <hr> <h4>" + "Total Members: "
+            + totalMembers[totalMembers.length - 1]
+            + "</h4> <hr> <h4>" + "Total NonMembers: "
+            + totalNonMembers[totalNonMembers.length - 1]
+            + "</h4>");
+            popup.update();
+            // paranoid : make sure it's open (bindPopup() should do that)
+            popup.openOn(map);
+          }
+        })
+        // map.fitBounds(event.target.getBounds())
+      },
     });
-    layer.bindPopup(function () {
-      return "<hr> <h2>" + "State Senate District " + feature.properties.FID + "</h2> <hr>"
-    })
+    layer.bindPopup("<hr> <h2>"
+    + "State Senate District "
+    + feature.properties.FID
+    + "</h2>");
   }
 });
 
@@ -226,7 +307,19 @@ d3.json('/user_data', function (userData) {
       userMarkers.push(
         L.marker([user.latitude, user.longitude], { icon: userIcon })
           .bindPopup(function () {
-            return '<h5>' + 'Role: ' + user.roles + '</h5>' + '<h5>' + 'County: ' + user.county + '</h5>' + '<h5>' + 'Congressional District: ' + user.cd + '</h5>' + '<h5>' + 'State Senate District: ' + user.sd + '</h5>' + '<h5>' + 'State House District: ' + user.hd + '</h5>'
+            return '<h5>' 
+            + 'Role: ' 
+            + user.roles 
+            + '</h5>' + '<h5>' 
+            + 'County: ' 
+            + user.county 
+            + '</h5>' + '<h5>' 
+            + 'Congressional District: ' 
+            + user.cd + '</h5>' + '<h5>' 
+            + 'State Senate District: ' 
+            + user.sd + '</h5>' + '<h5>' 
+            + 'State House District: ' 
+            + user.hd + '</h5>'
           })
           .addTo(userLayer))
       // userLayer = L.layerGroup(userMarkers);
