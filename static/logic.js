@@ -306,22 +306,25 @@ d3.json('/user_data', function (userData) {
     ) {
       userMarkers.push(
         L.marker([user.latitude, user.longitude], { icon: userIcon })
-          .bindPopup(function () {
-            return '<h5>' 
-            + 'Role: ' 
-            + user.roles 
-            + '</h5>' + '<h5>' 
-            + 'County: ' 
-            + user.county 
-            + '</h5>' + '<h5>' 
-            + 'Congressional District: ' 
-            + user.cd + '</h5>' + '<h5>' 
-            + 'State Senate District: ' 
-            + user.sd + '</h5>' + '<h5>' 
-            + 'State House District: ' 
-            + user.hd + '</h5>'
-          })
+        .bindPopup('<h3>' + 'CaucusRoom User' + '</h3>' + '<hr>' + '<p>' + user.roles + '</p>' + '<hr>' + '<p>' + 'County: ' + user.county + '</p>' + '<hr>' + '<p>' + 'Congressional District: ' + user.cd + '</p>' + '<hr>' + '<p>' + 'State Senate District: ' + user.sd + '</p>'+ '<hr>' + '<p>' + 'State House District: ' + user.hd + '</p>')
           .addTo(userLayer))
+          // .bindPopup(function () {
+          //   return '<h5>' 
+          //   + 'Role: ' 
+          //   + user.roles 
+          //   + '</h5>' + '<h5>' 
+          //   + 'County: ' 
+          //   + user.county 
+          //   + '</h5>' + '<h5>' 
+          //   + 'Congressional District: ' 
+          //   + user.cd + '</h5>' + '<h5>' 
+          //   + 'State Senate District: ' 
+          //   + user.sd + '</h5>' + '<h5>' 
+          //   + 'State House District: ' 
+          //   + user.hd + '</h5>'
+          // })
+        // .addTo(userLayer))
+
       // userLayer = L.layerGroup(userMarkers);
     }
   }
